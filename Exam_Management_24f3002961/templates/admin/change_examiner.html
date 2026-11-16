@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Change Examiner - Examination Management Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">Reassign Examiner for Slot #{{ slot.id }}</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="mb-4 p-3 bg-light rounded border">
+                    <div class="mb-2"><strong>Exam:</strong> {{ slot.examination.name }} ({{ slot.examination.course.course_code }})</div>
+                    <div class="mb-2"><strong>Date & Time:</strong> {{ slot.date.strftime('%Y-%m-%d') }} ({{ slot.start_time }} - {{ slot.end_time }})</div>
+                    <div><strong>Current Examiner:</strong> {{ slot.examiner.name }} ({{ slot.examiner.department or 'N/A' }})</div>
+                </div>
+
+                <form method="POST">
+                    <div class="mb-4">
+                        <label for="examiner_id" class="form-label fw-semibold">Select New Examiner</label>
+                        <select class="form-select" id="examiner_id" name="examiner_id" required>
+                            <option value="">-- Choose Approved Examiner --</option>
+                            {% for ex in examiners %}
+                            <option value="{{ ex.id }}" {% if ex.id == slot.examiner_id %}selected{% endif %}>
+                                {{ ex.name }} ({{ ex.department or 'General' }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('admin_slots') }}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check-circle me-1"></i> Update Examiner
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

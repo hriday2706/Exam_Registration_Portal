@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Booking History - Examination Management Portal{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">Booking & Examination History</h3>
+        <p class="text-muted mb-0">Complete historical record of all your examination slot reservations and outcomes</p>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Examination</th>
+                        <th>Course</th>
+                        <th>Slot Date & Time</th>
+                        <th>Examiner</th>
+                        <th>Booked On</th>
+                        <th>Status</th>
+                        <th class="text-end">Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if bookings %}
+                        {% for b in bookings %}
+                        <tr>
+                            <td><strong>#{{ b.id }}</strong></td>
+                            <td class="fw-bold">{{ b.slot.examination.name }}</td>
+                            <td><span class="badge bg-light text-dark border">{{ b.slot.examination.course.course_code }}</span></td>
+                            <td>
+                                {{ b.slot.date.strftime('%Y-%m-%d') }}<br>
+                                <small class="text-muted">{{ b.slot.start_time }} - {{ b.slot.end_time }}</small>
+                            </td>
+                            <td>{{ b.slot.examiner.name }}</td>
+                            <td><small class="text-muted">{{ b.booking_date.strftime('%Y-%m-%d %H:%M') }}</small></td>
+                            <td>
+                                {% if b.status == 'Booked' %}
+                                <span class="badge bg-success">Booked</span>
+                                {% elif b.status == 'Completed' %}
+                                <span class="badge bg-primary">Completed</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Cancelled</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                {% if b.evaluation %}
+                                <a href="{{ url_for('student_results') }}" class="btn btn-sm btn-outline-success">
+                                    <i class="bi bi-award me-1"></i> {{ b.evaluation.total_marks }} / {{ b.slot.examination.max_marks }}
+                                </a>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">No booking history recorded.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

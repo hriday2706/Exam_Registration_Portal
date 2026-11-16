@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}Search - Examination Management Portal{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h3 class="fw-bold mb-1">Search Records</h3>
+    <p class="text-muted mb-0">Search students, examiners, examinations, or bookings by name or ID</p>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body p-4">
+        <form method="GET" action="{{ url_for('admin_search') }}">
+            <div class="row g-2">
+                <div class="col-md-7">
+                    <input type="text" class="form-control" name="q" value="{{ query }}" placeholder="Search by name, ID, code, or email..." autofocus>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" name="category">
+                        <option value="all" {% if category == 'all' %}selected{% endif %}>All Categories</option>
+                        <option value="students" {% if category == 'students' %}selected{% endif %}>Students</option>
+                        <option value="examiners" {% if category == 'examiners' %}selected{% endif %}>Examiners</option>
+                        <option value="examinations" {% if category == 'examinations' %}selected{% endif %}>Examinations</option>
+                        <option value="bookings" {% if category == 'bookings' %}selected{% endif %}>Bookings</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search me-1"></i> Search
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if query %}
+    {% if category in ['all', 'students'] and students %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+            <h6 class="mb-0 fw-bold text-primary"><i class="bi bi-people me-1"></i> Matching Students ({{ students|length }})</h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in students %}
+                        <tr>
+                            <td>{{ s.id }}</td>
+                            <td class="fw-bold">{{ s.name }}</td>
+                            <td><code>{{ s.username }}</code></td>
+                            <td>{{ s.email }}</td>
+                            <td>{{ s.phone or '-' }}</td>
+                            <td><span class="badge bg-success">{{ s.status }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if category in ['all', 'examiners'] and examiners %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+            <h6 class="mb-0 fw-bold text-info"><i class="bi bi-person-badge me-1"></i> Matching Examiners ({{ examiners|length }})</h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ex in examiners %}
+                        <tr>
+                            <td>{{ ex.id }}</td>
+                            <td class="fw-bold">{{ ex.name }}</td>
+                            <td><code>{{ ex.username }}</code></td>
+                            <td>{{ ex.email }}</td>
+                            <td>{{ ex.department or '-' }}</td>
+                            <td><span class="badge bg-primary">{{ ex.status }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if category in ['all', 'examinations'] and examinations %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+            <h6 class="mb-0 fw-bold text-success"><i class="bi bi-journal-text me-1"></i> Matching Examinations ({{ examinations|length }})</h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Exam Name</th>
+                            <th>Course</th>
+                            <th>Type</th>
+                            <th>Max Marks</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e in examinations %}
+                        <tr>
+                            <td>#{{ e.id }}</td>
+                            <td class="fw-bold">{{ e.name }}</td>
+                            <td>{{ e.course.course_code }} - {{ e.course.course_name }}</td>
+                            <td><span class="badge bg-light text-dark border">{{ e.exam_type }}</span></td>
+                            <td>{{ e.max_marks }}</td>
+                            <td><span class="badge bg-secondary">{{ e.status }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if category in ['all', 'bookings'] and bookings %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+            <h6 class="mb-0 fw-bold text-warning"><i class="bi bi-card-checklist me-1"></i> Matching Bookings ({{ bookings|length }})</h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>Student</th>
+                            <th>Examination</th>
+                            <th>Date & Time</th>
+                            <th>Examiner</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in bookings %}
+                        <tr>
+                            <td>#{{ b.id }}</td>
+                            <td class="fw-bold">{{ b.student.name }}</td>
+                            <td>{{ b.slot.examination.name }}</td>
+                            <td>{{ b.slot.date.strftime('%Y-%m-%d') }} ({{ b.slot.start_time }})</td>
+                            <td>{{ b.slot.examiner.name }}</td>
+                            <td><span class="badge bg-success">{{ b.status }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if not students and not examiners and not examinations and not bookings %}
+    <div class="alert alert-light border text-center py-4 text-muted">
+        <i class="bi bi-search fs-3 d-block mb-2"></i>
+        No matching records found for "{{ query }}".
+    </div>
+    {% endif %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Evaluate Student - Examination Management Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">Evaluation: {{ booking.student.name }}</h5>
+                    <span class="badge bg-primary fs-6">{{ exam.name }} (Max Marks: {{ exam.max_marks }})</span>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <div class="row mb-4 p-3 bg-light rounded border">
+                    <div class="col-md-4">
+                        <small class="text-muted d-block">Student Name</small>
+                        <strong>{{ booking.student.name }}</strong> ({{ booking.student.email }})
+                    </div>
+                    <div class="col-md-4">
+                        <small class="text-muted d-block">Course & Type</small>
+                        <strong>{{ exam.course.course_code }}</strong> - {{ exam.exam_type }} ({{ exam.duration }} mins)
+                    </div>
+                    <div class="col-md-4">
+                        <small class="text-muted d-block">Slot Scheduled</small>
+                        <strong>{{ booking.slot.date.strftime('%Y-%m-%d') }}</strong> ({{ booking.slot.start_time }} - {{ booking.slot.end_time }})
+                    </div>
+                </div>
+
+                <form method="POST">
+                    {% if rubrics %}
+                    <h6 class="fw-bold mb-3 text-primary">Examination Rubrics Evaluation</h6>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 30%;">Criterion & Guidelines</th>
+                                    <th style="width: 15%;">Max Marks</th>
+                                    <th style="width: 25%;">Marks Awarded</th>
+                                    <th style="width: 30%;">Criterion Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for r in rubrics %}
+                                {% set existing_score = None %}
+                                {% if evaluation %}
+                                    {% for s in evaluation.scores %}
+                                        {% if s.rubric_id == r.id %}
+                                            {% set existing_score = s %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ r.criterion_name }}</strong>
+                                        {% if r.description %}
+                                        <small class="text-muted d-block mt-1">{{ r.description }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary fs-6">{{ r.max_marks }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="input-group">
+                                            <input type="number" step="0.5" class="form-control" name="rubric_marks_{{ r.id }}" value="{{ existing_score.marks_obtained if existing_score else 0 }}" min="0" max="{{ r.max_marks }}" required>
+                                            <span class="input-group-text">/ {{ r.max_marks }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" name="rubric_remarks_{{ r.id }}" value="{{ existing_score.remarks if existing_score else '' }}" placeholder="Specific feedback">
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="mb-4">
+                        <label for="total_marks" class="form-label fw-semibold">Total Marks Awarded (out of {{ exam.max_marks }})</label>
+                        <input type="number" step="0.5" class="form-control" id="total_marks" name="total_marks" value="{{ evaluation.total_marks if evaluation else 0 }}" min="0" max="{{ exam.max_marks }}" required>
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-4">
+                        <label for="remarks" class="form-label fw-semibold">Overall Examiner Remarks & Feedback</label>
+                        <textarea class="form-control" id="remarks" name="remarks" rows="4" placeholder="Enter constructive feedback, strengths, and areas for improvement...">{{ evaluation.remarks if evaluation else '' }}</textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('examiner_students') }}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-success px-4 py-2 fw-semibold">
+                            <i class="bi bi-check-circle me-1"></i> Submit Evaluation
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

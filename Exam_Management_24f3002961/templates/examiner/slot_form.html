@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}{{ action }} Slot - Examination Management Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">{{ action }} Examination Slot</h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="examination_id" class="form-label fw-semibold">Examination</label>
+                        {% if action == 'Create' %}
+                        <select class="form-select" id="examination_id" name="examination_id" required>
+                            <option value="">-- Select Examination --</option>
+                            {% for e in examinations %}
+                            <option value="{{ e.id }}">{{ e.course.course_code }} - {{ e.name }} ({{ e.exam_type }}, {{ e.duration }} mins)</option>
+                            {% endfor %}
+                        </select>
+                        {% else %}
+                        <input type="text" class="form-control" value="{{ slot.examination.name }} ({{ slot.examination.course.course_code }})" disabled>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="date" class="form-label fw-semibold">Exam Date</label>
+                        <input type="date" class="form-control" id="date" name="date" value="{{ slot.date.strftime('%Y-%m-%d') if slot else '' }}" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="start_time" class="form-label fw-semibold">Start Time</label>
+                            <input type="time" class="form-control" id="start_time" name="start_time" value="{{ slot.start_time if slot else '09:00' }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="end_time" class="form-label fw-semibold">End Time</label>
+                            <input type="time" class="form-control" id="end_time" name="end_time" value="{{ slot.end_time if slot else '10:00' }}" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="max_capacity" class="form-label fw-semibold">Maximum Student Capacity</label>
+                        <input type="number" class="form-control" id="max_capacity" name="max_capacity" value="{{ slot.max_capacity if slot else 1 }}" min="1" max="100" required>
+                        <small class="text-muted">Maximum number of students who can book this slot.</small>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('examiner_slots') }}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check-circle me-1"></i> Save Slot
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

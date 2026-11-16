@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Examiner Dashboard - Examination Management Portal{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">Examiner Dashboard</h3>
+        <p class="text-muted mb-0">Welcome, {{ current_user.name }}. Manage your examination slots and student evaluations.</p>
+    </div>
+    <a href="{{ url_for('new_slot') }}" class="btn btn-primary">
+        <i class="bi bi-calendar-plus me-1"></i> Create New Slot
+    </a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div>
+                <small class="text-muted fw-semibold d-block">Open For Slots</small>
+                <h3 class="fw-bold mb-0 text-primary">{{ available_exams_count }}</h3>
+            </div>
+            <div class="stat-icon bg-primary-subtle text-primary">
+                <i class="bi bi-journal-check"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div>
+                <small class="text-muted fw-semibold d-block">My Slots</small>
+                <h3 class="fw-bold mb-0 text-success">{{ total_slots }}</h3>
+            </div>
+            <div class="stat-icon bg-success-subtle text-success">
+                <i class="bi bi-calendar3"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div>
+                <small class="text-muted fw-semibold d-block">Booked Students</small>
+                <h3 class="fw-bold mb-0 text-info">{{ total_booked_students }}</h3>
+            </div>
+            <div class="stat-icon bg-info-subtle text-info">
+                <i class="bi bi-people"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div>
+                <small class="text-muted fw-semibold d-block">Pending Evaluations</small>
+                <h3 class="fw-bold mb-0 text-warning">{{ pending_evaluations }}</h3>
+            </div>
+            <div class="stat-icon bg-warning-subtle text-warning">
+                <i class="bi bi-clipboard-check"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+        <h5 class="mb-0 fw-bold">Recent Examination Slots</h5>
+        <a href="{{ url_for('examiner_slots') }}" class="btn btn-sm btn-outline-secondary">View All My Slots</a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Slot ID</th>
+                        <th>Examination</th>
+                        <th>Date & Time</th>
+                        <th>Capacity</th>
+                        <th>Booked / Available</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if recent_slots %}
+                        {% for s in recent_slots %}
+                        <tr>
+                            <td><strong>#{{ s.id }}</strong></td>
+                            <td>
+                                <span class="fw-bold">{{ s.examination.name }}</span><br>
+                                <small class="text-muted">{{ s.examination.course.course_code }}</small>
+                            </td>
+                            <td>
+                                <i class="bi bi-calendar-event me-1"></i>{{ s.date.strftime('%Y-%m-%d') }}<br>
+                                <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ s.start_time }} - {{ s.end_time }}</small>
+                            </td>
+                            <td>{{ s.max_capacity }}</td>
+                            <td>
+                                <span class="badge bg-secondary">{{ s.booked_count }} booked</span>
+                                <span class="badge bg-info text-dark">{{ s.available_seats }} left</span>
+                            </td>
+                            <td>
+                                {% if s.status == 'Available' %}
+                                <span class="badge bg-success">Available</span>
+                                {% elif s.status == 'Full' %}
+                                <span class="badge bg-warning text-dark">Full</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ s.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                {% if s.booked_count == 0 and not s.examination.is_slot_booking_open %}
+                                <a href="{{ url_for('edit_slot', slot_id=s.id) }}" class="btn btn-sm btn-outline-primary me-1">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form method="POST" action="{{ url_for('delete_slot', slot_id=s.id) }}" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                                {% else %}
+                                <span class="badge bg-light text-muted border">Locked</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">No examination slots created yet. Click "Create New Slot" to add one.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

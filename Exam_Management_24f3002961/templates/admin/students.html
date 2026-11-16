@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Students - Examination Management Portal{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">Student Management</h3>
+        <p class="text-muted mb-0">View all registered students and their booking activity</p>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Student Name</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Bookings Count</th>
+                        <th>Status</th>
+                        <th>Registered Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if students %}
+                        {% for s in students %}
+                        <tr>
+                            <td>{{ s.id }}</td>
+                            <td class="fw-bold">{{ s.name }}</td>
+                            <td><code>{{ s.username }}</code></td>
+                            <td>{{ s.email }}</td>
+                            <td>{{ s.phone or 'Not provided' }}</td>
+                            <td>
+                                <span class="badge bg-primary-subtle text-primary border border-primary">
+                                    {{ s.student_bookings|length }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if s.status == 'active' %}
+                                <span class="badge bg-success">Active</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ s.status|capitalize }}</span>
+                                {% endif %}
+                            </td>
+                            <td><small class="text-muted">{{ s.created_at.strftime('%Y-%m-%d') }}</small></td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">No registered students found.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

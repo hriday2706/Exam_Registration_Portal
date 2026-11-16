@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Examinations - Examination Management Portal{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">Examinations</h3>
+        <p class="text-muted mb-0">View scheduled examinations and check slot creation availability</p>
+    </div>
+    <a href="{{ url_for('new_slot') }}" class="btn btn-primary">
+        <i class="bi bi-calendar-plus me-1"></i> Create Slot
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Examination Name</th>
+                        <th>Course</th>
+                        <th>Type</th>
+                        <th>Duration</th>
+                        <th>Max Marks</th>
+                        <th>Slot Creation Window</th>
+                        <th>Status</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if examinations %}
+                        {% for e in examinations %}
+                        <tr>
+                            <td>#{{ e.id }}</td>
+                            <td class="fw-bold">{{ e.name }}</td>
+                            <td><span class="badge bg-light text-dark border">{{ e.course.course_code }}</span> {{ e.course.course_name }}</td>
+                            <td><span class="badge bg-info-subtle text-info border border-info">{{ e.exam_type }}</span></td>
+                            <td>{{ e.duration }} mins</td>
+                            <td><strong>{{ e.max_marks }}</strong></td>
+                            <td>
+                                <small class="d-block">{{ e.slot_creation_start_date.strftime('%Y-%m-%d') }} to</small>
+                                <small class="fw-semibold">{{ e.slot_creation_end_date.strftime('%Y-%m-%d') }}</small>
+                            </td>
+                            <td>
+                                {% if e.is_slot_creation_open %}
+                                <span class="badge bg-success">Slot Creation Open</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ e.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                {% if e.is_slot_creation_open %}
+                                <a href="{{ url_for('new_slot') }}" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-plus-lg me-1"></i> Add Slot
+                                </a>
+                                {% else %}
+                                <button class="btn btn-sm btn-outline-secondary" disabled>Closed</button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="9" class="text-center py-4 text-muted">No examinations currently scheduled.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
